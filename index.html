@@ -117,7 +117,8 @@
   .conf{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall linear forwards;}
   @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
 
-  /* ── PRINT STYLES ── */
+/* ── BACKUP BUTTONS ── */
+  @media print { .print-area > div:first-child { display:none!important; } }
   @media print {
     body{background:#fff;}
     .app-header,.progress-wrap,.badge-row,.print-area,.tip-toggle,.tip-content,.complete-btn,.chevron,.part-header .chevron{display:none!important;}
@@ -427,8 +428,18 @@
 
 </div><!-- /parts-container -->
 
-<!-- PRINT -->
+<!-- BACKUP / RESTORE -->
 <div class="print-area">
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:14px;">
+    <button class="print-btn" style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 15px rgba(5,150,105,.35);" onclick="saveJSON()">
+      💾 Save Backup (JSON)
+    </button>
+    <label class="print-btn" style="background:linear-gradient(135deg,#0369A1,#0284C7);box-shadow:0 4px 15px rgba(3,105,161,.35);cursor:pointer;">
+      📂 Load Backup (JSON)
+      <input type="file" accept=".json" onchange="loadJSON(event)" style="display:none;"/>
+    </label>
+  </div>
+  <div id="backup-msg" style="font-size:.8rem;color:#059669;font-weight:700;min-height:18px;margin-bottom:10px;"></div>
   <button class="print-btn" id="printBtn" onclick="doPrint()" disabled>
     🖨️ Print / Save as PDF
   </button>
@@ -555,6 +566,66 @@ function load(){
       data.completed.forEach((v,i)=>{if(v) markDone(i+1);});
     }
   }catch(e){}
+}
+
+/* ── JSON Backup ── */
+function saveJSON(){
+  const data={};
+  FIELDS.forEach(id=>{const el=document.getElementById(id);if(el)data[id]=el.value;});
+  data.completed=completed;
+  data.savedAt=new Date().toISOString();
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  const name=document.getElementById('stu-name').value.trim().replace(/\s+/g,'_')||'student';
+  a.href=URL.createObjectURL(blob);
+  a.download=`CSP_Backup_${name}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showMsg('✅ Backup saved! Keep this file safe.');
+}
+
+function loadJSON(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const data=JSON.parse(ev.target.result);
+      FIELDS.forEach(id=>{
+        const el=document.getElementById(id);
+        if(el&&data[id]!==undefined){
+          el.value=data[id];
+          if(WC_MAP[id]) wc(id,WC_MAP[id]);
+        }
+      });
+      // reset completed state first
+      completed=[false,false,false,false,false];
+      for(let i=1;i<=5;i++){
+        const btn=document.getElementById('cb'+i);
+        const stat=document.getElementById('status'+i);
+        btn.className='complete-btn mark';
+        btn.textContent='✅ Mark Part '+i+' Complete';
+        stat.textContent='⬜';
+        stat.classList.remove('done');
+      }
+      if(data.completed&&Array.isArray(data.completed)){
+        data.completed.forEach((v,i)=>{if(v) markDone(i+1);});
+      }
+      save();
+      const d=data.savedAt?new Date(data.savedAt).toLocaleString():'unknown date';
+      showMsg('📂 Backup loaded! (Saved: '+d+')');
+    }catch(err){
+      showMsg('❌ Could not read file. Make sure it is a valid CSP backup.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+function showMsg(msg){
+  const el=document.getElementById('backup-msg');
+  el.textContent=msg;
+  setTimeout(()=>el.textContent='',4000);
 }
 
 load();
