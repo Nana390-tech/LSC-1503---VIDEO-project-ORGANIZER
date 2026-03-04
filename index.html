@@ -1,0 +1,563 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Communication Skills Portfolio Planner</title>
+<style>
+  :root {
+    --p1:#7C3AED; --p2:#2563EB; --p3:#059669; --p4:#DC2626; --p5:#D97706;
+    --p1l:#EDE9FE; --p2l:#DBEAFE; --p3l:#D1FAE5; --p4l:#FEE2E2; --p5l:#FEF3C7;
+    --gold:#F59E0B; --bg:#F1F5F9; --white:#fff; --dark:#1E293B; --grey:#64748B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;}
+
+  /* ── HEADER ── */
+  .app-header{background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 50%,#EC4899 100%);padding:28px 20px 22px;text-align:center;position:relative;overflow:hidden;}
+  .app-header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none;}
+  .app-header h1{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:1.7rem;font-weight:800;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 8px rgba(0,0,0,.2);}
+  .app-header p{color:rgba(255,255,255,.85);font-size:.9rem;margin-top:4px;}
+  .badge-row{display:flex;justify-content:center;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.35);border-radius:20px;padding:4px 14px;font-size:.75rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:5px;}
+
+  /* ── STUDENT INFO ── */
+  .student-card{background:var(--white);border-radius:16px;padding:20px 24px;margin:20px auto;max-width:780px;box-shadow:0 2px 12px rgba(0,0,0,.08);display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .student-card h2{grid-column:1/-1;font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:1rem;font-weight:700;color:#4F46E5;display:flex;align-items:center;gap:8px;}
+  .form-field label{display:block;font-size:.78rem;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+  .form-field input{width:100%;padding:10px 14px;border:2px solid #E2E8F0;border-radius:10px;font-family:'Nunito',sans-serif;font-size:.95rem;transition:border .2s;}
+  .form-field input:focus{outline:none;border-color:#7C3AED;box-shadow:0 0 0 3px #EDE9FE;}
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap{max-width:780px;margin:0 auto 20px;padding:0 20px;}
+  .progress-label{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;color:var(--grey);margin-bottom:6px;}
+  .progress-track{background:#E2E8F0;border-radius:20px;height:14px;overflow:hidden;position:relative;}
+  .progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#7C3AED,#EC4899);transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .stars-row{display:flex;justify-content:center;gap:10px;margin-top:10px;}
+  .star{font-size:1.6rem;transition:transform .3s;filter:grayscale(1) opacity(.35);}
+  .star.lit{filter:none;transform:scale(1.25);}
+
+  /* ── PART CARDS ── */
+  .parts-container{max-width:780px;margin:0 auto;padding:0 20px 30px;}
+  .part-card{background:var(--white);border-radius:18px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;transition:box-shadow .2s;}
+  .part-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.12);}
+
+  .part-header{display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;user-select:none;position:relative;}
+  .part-num{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:800;color:#fff;flex-shrink:0;}
+  .part-title-block{flex:1;}
+  .part-title-block h3{font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:1rem;font-weight:700;}
+  .part-title-block p{font-size:.78rem;color:var(--grey);margin-top:1px;}
+  .part-status{font-size:1.4rem;transition:transform .3s;}
+  .part-status.done{transform:scale(1.2);}
+  .chevron{font-size:.8rem;color:var(--grey);margin-left:6px;transition:transform .3s;}
+  .part-card.open .chevron{transform:rotate(180deg);}
+  .part-body{padding:0 20px 20px;display:none;}
+  .part-card.open .part-body{display:block;}
+
+  /* Color per part */
+  .p1 .part-header{background:var(--p1l);} .p1 .part-num{background:var(--p1);}
+  .p2 .part-header{background:var(--p2l);} .p2 .part-num{background:var(--p2);}
+  .p3 .part-header{background:var(--p3l);} .p3 .part-num{background:var(--p3);}
+  .p4 .part-header{background:var(--p4l);} .p4 .part-num{background:var(--p4);}
+  .p5 .part-header{background:var(--p5l);} .p5 .part-num{background:var(--p5);}
+
+  /* ── GUIDE BOX ── */
+  .guide-box{border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:.85rem;line-height:1.6;}
+  .guide-box .guide-title{font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+  .guide-box ul{padding-left:18px;}
+  .guide-box ul li{margin-bottom:3px;}
+  .p1 .guide-box{background:var(--p1l);color:#4C1D95;}
+  .p2 .guide-box{background:var(--p2l);color:#1E3A8A;}
+  .p3 .guide-box{background:var(--p3l);color:#064E3B;}
+  .p4 .guide-box{background:var(--p4l);color:#7F1D1D;}
+  .p5 .guide-box{background:var(--p5l);color:#78350F;}
+
+  /* ── NOTES FIELDS ── */
+  .note-section{margin-bottom:14px;}
+  .note-section label{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+  .note-section label .icon{font-size:1rem;}
+  textarea{width:100%;padding:12px 14px;border:2px solid #E2E8F0;border-radius:10px;font-family:'Nunito',sans-serif;font-size:.93rem;resize:vertical;min-height:80px;line-height:1.6;transition:border .2s;}
+  textarea:focus{outline:none;border-color:#7C3AED;box-shadow:0 0 0 3px #EDE9FE;}
+  textarea::placeholder{color:#CBD5E1;}
+
+  /* ── REFLECTION BLOCKS (What/So What/Now What) ── */
+  .reflection-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  @media(max-width:560px){.reflection-grid{grid-template-columns:1fr;} .student-card{grid-template-columns:1fr;}}
+  .ref-block{border-radius:12px;padding:12px;}
+  .ref-block label{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:5px;margin-bottom:7px;}
+  .ref-block textarea{min-height:100px;border-color:rgba(0,0,0,.1);}
+  .what-blk{background:#FEF3C7;} .what-blk label{color:#92400E;}
+  .sowhat-blk{background:#FEE2E2;} .sowhat-blk label{color:#7F1D1D;}
+  .nowwhat-blk{background:#D1FAE5;} .nowwhat-blk label{color:#064E3B;}
+
+  /* ── WORD COUNT ── */
+  .wc{font-size:.72rem;color:var(--grey);text-align:right;margin-top:3px;}
+
+  /* ── TIPS TOGGLE ── */
+  .tip-toggle{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:700;color:#7C3AED;cursor:pointer;margin-bottom:10px;background:#EDE9FE;border:none;border-radius:8px;padding:5px 12px;}
+  .tip-toggle:hover{background:#DDD6FE;}
+  .tip-content{display:none;background:#F5F3FF;border-left:3px solid #7C3AED;padding:10px 14px;border-radius:0 8px 8px 0;font-size:.83rem;line-height:1.7;margin-bottom:12px;color:#4C1D95;}
+  .tip-content.show{display:block;}
+
+  /* ── SECTION COMPLETE BTN ── */
+  .complete-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:.85rem;font-weight:700;transition:all .2s;margin-top:8px;}
+  .complete-btn.mark{background:#F1F5F9;color:var(--grey);border:2px solid #E2E8F0;}
+  .complete-btn.mark:hover{background:#EDE9FE;color:#7C3AED;border-color:#7C3AED;}
+  .complete-btn.done{background:linear-gradient(135deg,#10B981,#059669);color:#fff;border:2px solid transparent;}
+
+  /* ── PRINT BUTTON ── */
+  .print-area{max-width:780px;margin:0 auto 30px;padding:0 20px;text-align:center;}
+  .print-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 36px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:14px;font-family:'Poppins',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(124,58,237,.35);transition:all .2s;}
+  .print-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,.45);}
+  .print-btn:disabled{background:#CBD5E1;box-shadow:none;cursor:not-allowed;transform:none;}
+  .unlock-hint{font-size:.8rem;color:var(--grey);margin-top:8px;}
+
+  /* ── CONFETTI OVERLAY ── */
+  #confetti-box{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;}
+  .conf{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall linear forwards;}
+  @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+
+  /* ── PRINT STYLES ── */
+  @media print {
+    body{background:#fff;}
+    .app-header,.progress-wrap,.badge-row,.print-area,.tip-toggle,.tip-content,.complete-btn,.chevron,.part-header .chevron{display:none!important;}
+    .part-card{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid;margin-bottom:12px;}
+    .part-body{display:block!important;}
+    .part-header{cursor:default;padding:12px 16px;}
+    textarea{border:1px solid #ccc;min-height:unset;}
+    .student-card{box-shadow:none;border:1px solid #ddd;}
+    .guide-box{display:none;}
+    .print-title{display:block!important;}
+  }
+  .print-title{display:none;font-family:'Poppins',sans-serif;font-size:1.4rem;font-weight:800;text-align:center;padding:16px;color:#4F46E5;border-bottom:2px solid #4F46E5;margin-bottom:12px;}
+</style>
+</head>
+<body>
+
+<div id="confetti-box"></div>
+
+<div class="app-header">
+  <h1>🎬 Communication Skills Portfolio</h1>
+  <p>Video Script Planner &amp; Notes Builder</p>
+  <div class="badge-row">
+    <span class="badge">📋 5 Parts</span>
+    <span class="badge">🏆 Gamified Progress</span>
+    <span class="badge">🖨️ Print-Ready PDF</span>
+  </div>
+</div>
+
+<div class="print-title">Communication Skills Portfolio — Video Notes</div>
+
+<!-- Student Info -->
+<div class="student-card">
+  <h2>👤 Your Details</h2>
+  <div class="form-field">
+    <label>Full Name</label>
+    <input type="text" id="stu-name" placeholder="e.g. Fatima Al Zaabi" oninput="save()"/>
+  </div>
+  <div class="form-field">
+    <label>Student ID</label>
+    <input type="text" id="stu-id" placeholder="e.g. 00123456" oninput="save()"/>
+  </div>
+  <div class="form-field">
+    <label>Course</label>
+    <input type="text" id="stu-course" placeholder="e.g. LSC 1503" oninput="save()"/>
+  </div>
+  <div class="form-field">
+    <label>Submission Date</label>
+    <input type="date" id="stu-date" oninput="save()"/>
+  </div>
+</div>
+
+<!-- Progress -->
+<div class="progress-wrap">
+  <div class="progress-label"><span>🚀 Overall Progress</span><span id="pct-label">0%</span></div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="stars-row">
+    <span class="star" id="s1">⭐</span>
+    <span class="star" id="s2">⭐</span>
+    <span class="star" id="s3">⭐</span>
+    <span class="star" id="s4">⭐</span>
+    <span class="star" id="s5">⭐</span>
+  </div>
+</div>
+
+<!-- ═══════════ PARTS ═══════════ -->
+<div class="parts-container">
+
+  <!-- PART 1 -->
+  <div class="part-card p1 open" id="card1">
+    <div class="part-header" onclick="toggle(1)">
+      <div class="part-num">1</div>
+      <div class="part-title-block">
+        <h3>Introduction</h3>
+        <p>Introduce yourself &amp; set the scene</p>
+      </div>
+      <span class="part-status" id="status1">⬜</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="part-body">
+      <div class="guide-box">
+        <div class="guide-title">📌 What to include</div>
+        <ul>
+          <li>Greet your audience warmly</li>
+          <li>State your <strong>full name</strong> and <strong>student ID number</strong></li>
+          <li>Hold up your <strong>ID card to the camera</strong> for verification</li>
+          <li>Give a short overview of what your video will cover (all 5 parts)</li>
+          <li>Keep it engaging — a strong opening hooks your audience!</li>
+        </ul>
+      </div>
+
+      <button class="tip-toggle" onclick="toggleTip('t1')">💡 Script Tips</button>
+      <div class="tip-content" id="t1">
+        Try starting with: <em>"Hello, my name is [Name], my student ID is [ID], and today I am going to take you through my Communication Skills Portfolio…"</em> Then briefly name each of the 5 parts you will discuss. Smile and speak clearly — first impressions count!
+      </div>
+
+      <div class="note-section">
+        <label><span class="icon">👋</span> Your Opening Greeting &amp; Self-Introduction</label>
+        <textarea id="p1_intro" placeholder="Write how you plan to greet the audience and introduce yourself..." oninput="wc('p1_intro','wc1a');save()"></textarea>
+        <div class="wc" id="wc1a">0 words</div>
+      </div>
+      <div class="note-section">
+        <label><span class="icon">🪪</span> ID Verification Note</label>
+        <textarea id="p1_id" placeholder="Note: I will hold my ID card up to the camera and clearly state my ID number..." oninput="wc('p1_id','wc1b');save()" style="min-height:60px;"></textarea>
+        <div class="wc" id="wc1b">0 words</div>
+      </div>
+      <div class="note-section">
+        <label><span class="icon">🗂️</span> Video Overview / Summary of All 5 Parts</label>
+        <textarea id="p1_overview" placeholder="In this video, I will talk about: (1) ... (2) ... (3) ... (4) ... (5) ..." oninput="wc('p1_overview','wc1c');save()"></textarea>
+        <div class="wc" id="wc1c">0 words</div>
+      </div>
+      <button class="complete-btn mark" id="cb1" onclick="markDone(1)">✅ Mark Part 1 Complete</button>
+    </div>
+  </div>
+
+  <!-- PART 2 -->
+  <div class="part-card p2" id="card2">
+    <div class="part-header" onclick="toggle(2)">
+      <div class="part-num">2</div>
+      <div class="part-title-block">
+        <h3>LPA Reflection</h3>
+        <p>Reflect on one Learning Portfolio Artifact</p>
+      </div>
+      <span class="part-status" id="status2">⬜</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="part-body">
+      <div class="guide-box">
+        <div class="guide-title">📌 What to include</div>
+        <ul>
+          <li>Name the <strong>specific LPA activity</strong> you chose</li>
+          <li>Describe <strong>what the activity was</strong> — what did you do?</li>
+          <li>Explain <strong>why you chose this LPA</strong> — what made it meaningful?</li>
+          <li>Share <strong>what you learned</strong> from it — skills, insights, growth</li>
+          <li>Be honest and personal — this is YOUR reflection</li>
+        </ul>
+      </div>
+
+      <button class="tip-toggle" onclick="toggleTip('t2')">💡 Script Tips</button>
+      <div class="tip-content" id="t2">
+        Structure it as: <em>"For my LPA reflection, I chose [name of LPA]. This activity involved [brief description]. I chose it because [reason]. Through this activity, I learned [what you learned]."</em> Try to connect your learning to real-life communication skills.
+      </div>
+
+      <div class="note-section">
+        <label><span class="icon">📝</span> Name of the LPA &amp; What It Was</label>
+        <textarea id="p2_what" placeholder="e.g. LPA 2 — Professional Interview Practice. This activity involved..." oninput="wc('p2_what','wc2a');save()"></textarea>
+        <div class="wc" id="wc2a">0 words</div>
+      </div>
+      <div class="note-section">
+        <label><span class="icon">❓</span> Why I Chose This LPA</label>
+        <textarea id="p2_why" placeholder="I chose this LPA because..." oninput="wc('p2_why','wc2b');save()"></textarea>
+        <div class="wc" id="wc2b">0 words</div>
+      </div>
+      <div class="note-section">
+        <label><span class="icon">💡</span> What I Learned</label>
+        <textarea id="p2_learned" placeholder="Through this activity, I learned that..." oninput="wc('p2_learned','wc2c');save()"></textarea>
+        <div class="wc" id="wc2c">0 words</div>
+      </div>
+      <button class="complete-btn mark" id="cb2" onclick="markDone(2)">✅ Mark Part 2 Complete</button>
+    </div>
+  </div>
+
+  <!-- PART 3 -->
+  <div class="part-card p3" id="card3">
+    <div class="part-header" onclick="toggle(3)">
+      <div class="part-num">3</div>
+      <div class="part-title-block">
+        <h3>Study Skill Reflection</h3>
+        <p>Share a study skill you developed</p>
+      </div>
+      <span class="part-status" id="status3">⬜</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="part-body">
+      <div class="guide-box">
+        <div class="guide-title">📌 What to include</div>
+        <ul>
+          <li>Name the <strong>specific study skill</strong> you are discussing</li>
+          <li>Explain <strong>what the skill is</strong> — define it briefly for the audience</li>
+          <li>Tell us <strong>why you chose this skill</strong> — why was it important to you?</li>
+          <li>Reflect on <strong>what you learned</strong> and how you plan to use it</li>
+          <li>Give a <strong>specific example</strong> of how you applied this skill</li>
+        </ul>
+      </div>
+
+      <button class="tip-toggle" onclick="toggleTip('t3')">💡 Script Tips</button>
+      <div class="tip-content" id="t3">
+        Possible study skills: note-taking strategies, time management, active listening, mind mapping, peer feedback, vocabulary building, etc. Try: <em>"One study skill I developed this semester is [skill]. This means [definition]. I chose to focus on this because [reason]. I used it when [example], and I learned that [insight]."</em>
+      </div>
+
+      <div class="note-section">
+        <label><span class="icon">📚</span> The Study Skill &amp; What It Is</label>
+        <textarea id="p3_skill" placeholder="The study skill I chose is... This skill means..." oninput="wc('p3_skill','wc3a');save()"></textarea>
+        <div class="wc" id="wc3a">0 words</div>
+      </div>
+      <div class="note-section">
+        <label><span class="icon">🎯</span> Why I Chose This Skill</label>
+        <textarea id="p3_why" placeholder="I chose this skill because..." oninput="wc('p3_why','wc3b');save()"></textarea>
+        <div class="wc" id="wc3b">0 words</div>
+      </div>
+      <div class="note-section">
+        <label><span class="icon">🌱</span> What I Learned &amp; How I'll Apply It</label>
+        <textarea id="p3_learned" placeholder="Using this skill, I learned... I plan to continue using it by..." oninput="wc('p3_learned','wc3c');save()"></textarea>
+        <div class="wc" id="wc3c">0 words</div>
+      </div>
+      <button class="complete-btn mark" id="cb3" onclick="markDone(3)">✅ Mark Part 3 Complete</button>
+    </div>
+  </div>
+
+  <!-- PART 4 -->
+  <div class="part-card p4" id="card4">
+    <div class="part-header" onclick="toggle(4)">
+      <div class="part-num">4</div>
+      <div class="part-title-block">
+        <h3>Area for Improvement</h3>
+        <p>What / So What / Now What reflection</p>
+      </div>
+      <span class="part-status" id="status4">⬜</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="part-body">
+      <div class="guide-box">
+        <div class="guide-title">📌 What to include — The What / So What / Now What Framework</div>
+        <ul>
+          <li><strong>WHAT:</strong> Identify the area you want to improve — be specific and honest</li>
+          <li><strong>SO WHAT:</strong> Why does this matter? What impact does this weakness have?</li>
+          <li><strong>NOW WHAT:</strong> What is your plan to improve? What steps will you take?</li>
+          <li>This shows self-awareness and growth mindset — highly valued in communication!</li>
+        </ul>
+      </div>
+
+      <button class="tip-toggle" onclick="toggleTip('t4')">💡 Script Tips</button>
+      <div class="tip-content" id="t4">
+        Be honest but professional. Example: <em>"An area I want to improve is my confidence when speaking in front of large groups (WHAT). This matters because strong public speaking is essential in my future career (SO WHAT). To improve, I plan to join speaking clubs, practise with friends, and record myself regularly (NOW WHAT)."</em>
+      </div>
+
+      <div class="note-section"><label>🔍 Choose Your Area for Improvement</label>
+        <textarea id="p4_area" placeholder="The area I would like to improve is..." oninput="wc('p4_area','wc4a');save()" style="min-height:60px;"></textarea>
+        <div class="wc" id="wc4a">0 words</div>
+      </div>
+
+      <div class="reflection-grid">
+        <div class="ref-block what-blk">
+          <label><span>🔷</span> WHAT</label>
+          <textarea id="p4_what" placeholder="What is the area? Describe it clearly..." oninput="wc('p4_what','wc4b');save()"></textarea>
+          <div class="wc" id="wc4b">0 words</div>
+        </div>
+        <div class="ref-block sowhat-blk">
+          <label><span>🔴</span> SO WHAT</label>
+          <textarea id="p4_sowhat" placeholder="Why does this matter to you and your future?" oninput="wc('p4_sowhat','wc4c');save()"></textarea>
+          <div class="wc" id="wc4c">0 words</div>
+        </div>
+        <div class="ref-block nowwhat-blk">
+          <label><span>🟢</span> NOW WHAT</label>
+          <textarea id="p4_nowwhat" placeholder="What specific steps will you take to improve?" oninput="wc('p4_nowwhat','wc4d');save()"></textarea>
+          <div class="wc" id="wc4d">0 words</div>
+        </div>
+      </div>
+      <button class="complete-btn mark" id="cb4" onclick="markDone(4)" style="margin-top:14px;">✅ Mark Part 4 Complete</button>
+    </div>
+  </div>
+
+  <!-- PART 5 -->
+  <div class="part-card p5" id="card5">
+    <div class="part-header" onclick="toggle(5)">
+      <div class="part-num">5</div>
+      <div class="part-title-block">
+        <h3>Conclusion</h3>
+        <p>Summarise &amp; close powerfully</p>
+      </div>
+      <span class="part-status" id="status5">⬜</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="part-body">
+      <div class="guide-box">
+        <div class="guide-title">📌 What to include</div>
+        <ul>
+          <li>Briefly <strong>summarise all 5 parts</strong> of your video (1–2 sentences each)</li>
+          <li>End with a <strong>general closing statement</strong> — something meaningful, inspiring, or reflective</li>
+          <li><strong>Thank your audience</strong> for watching — be warm and genuine</li>
+          <li>Your conclusion should feel like a satisfying, confident ending</li>
+        </ul>
+      </div>
+
+      <button class="tip-toggle" onclick="toggleTip('t5')">💡 Script Tips</button>
+      <div class="tip-content" id="t5">
+        Try: <em>"In this video, I introduced myself, reflected on my LPA, discussed a study skill, identified an area for improvement, and I hope this portfolio demonstrates my growth as a communicator. Learning to communicate effectively is not just an academic skill — it is a life skill. Thank you so much for watching."</em>
+      </div>
+
+      <div class="note-section">
+        <label><span class="icon">🔁</span> Summary of All 5 Parts</label>
+        <textarea id="p5_summary" placeholder="In this video I covered: Part 1 - ... Part 2 - ... Part 3 - ... Part 4 - ... Part 5 - ..." oninput="wc('p5_summary','wc5a');save()"></textarea>
+        <div class="wc" id="wc5a">0 words</div>
+      </div>
+      <div class="note-section">
+        <label><span class="icon">✨</span> Closing General Statement</label>
+        <textarea id="p5_closing" placeholder="Write a meaningful, thoughtful closing sentence or two..." oninput="wc('p5_closing','wc5b');save()"></textarea>
+        <div class="wc" id="wc5b">0 words</div>
+      </div>
+      <div class="note-section">
+        <label><span class="icon">🙏</span> Thank You Message</label>
+        <textarea id="p5_thanks" placeholder="Thank you for watching my Communication Skills Portfolio. I hope..." oninput="wc('p5_thanks','wc5c');save()" style="min-height:60px;"></textarea>
+        <div class="wc" id="wc5c">0 words</div>
+      </div>
+      <button class="complete-btn mark" id="cb5" onclick="markDone(5)">✅ Mark Part 5 Complete</button>
+    </div>
+  </div>
+
+</div><!-- /parts-container -->
+
+<!-- PRINT -->
+<div class="print-area">
+  <button class="print-btn" id="printBtn" onclick="doPrint()" disabled>
+    🖨️ Print / Save as PDF
+  </button>
+  <div class="unlock-hint" id="unlock-hint">Complete all 5 parts to unlock printing 🔒</div>
+</div>
+
+<script>
+const PARTS = 5;
+let completed = [false,false,false,false,false];
+
+/* ── Toggle accordion ── */
+function toggle(n){
+  const c = document.getElementById('card'+n);
+  c.classList.toggle('open');
+}
+
+/* ── Tip toggle ── */
+function toggleTip(id){
+  const el=document.getElementById(id);
+  el.classList.toggle('show');
+}
+
+/* ── Word count ── */
+function wc(tid,wid){
+  const v=document.getElementById(tid).value.trim();
+  const n=v?v.split(/\s+/).length:0;
+  document.getElementById(wid).textContent=n+' word'+(n!==1?'s':'');
+}
+
+/* ── Mark part done ── */
+function markDone(n){
+  completed[n-1]=!completed[n-1];
+  const btn=document.getElementById('cb'+n);
+  const stat=document.getElementById('status'+n);
+  if(completed[n-1]){
+    btn.className='complete-btn done';
+    btn.textContent='✅ Part '+n+' Complete!';
+    stat.textContent='✅';
+    stat.classList.add('done');
+  } else {
+    btn.className='complete-btn mark';
+    btn.textContent='✅ Mark Part '+n+' Complete';
+    stat.textContent='⬜';
+    stat.classList.remove('done');
+  }
+  updateProgress();
+  save();
+}
+
+/* ── Progress ── */
+function updateProgress(){
+  const done=completed.filter(Boolean).length;
+  const pct=Math.round((done/PARTS)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('pct-label').textContent=pct+'%';
+  for(let i=1;i<=PARTS;i++){
+    const s=document.getElementById('s'+i);
+    s.classList.toggle('lit',completed[i-1]);
+  }
+  const allDone=done===PARTS;
+  const pb=document.getElementById('printBtn');
+  pb.disabled=!allDone;
+  document.getElementById('unlock-hint').textContent=allDone?'🎉 All parts complete! Ready to print.':'Complete all 5 parts to unlock printing 🔒';
+  if(allDone) launchConfetti();
+}
+
+/* ── Confetti ── */
+function launchConfetti(){
+  const box=document.getElementById('confetti-box');
+  box.innerHTML='';
+  const colors=['#7C3AED','#EC4899','#F59E0B','#10B981','#3B82F6','#EF4444'];
+  for(let i=0;i<80;i++){
+    const c=document.createElement('div');
+    c.className='conf';
+    c.style.cssText=`left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*0.8}s;border-radius:${Math.random()>0.5?'50%':'2px'}`;
+    box.appendChild(c);
+  }
+  setTimeout(()=>box.innerHTML='',4000);
+}
+
+/* ── Print ── */
+function doPrint(){
+  // Expand all parts before printing
+  for(let i=1;i<=5;i++) document.getElementById('card'+i).classList.add('open');
+  setTimeout(()=>window.print(),200);
+}
+
+/* ── LocalStorage save/load ── */
+const FIELDS=['stu-name','stu-id','stu-course','stu-date',
+  'p1_intro','p1_id','p1_overview',
+  'p2_what','p2_why','p2_learned',
+  'p3_skill','p3_why','p3_learned',
+  'p4_area','p4_what','p4_sowhat','p4_nowwhat',
+  'p5_summary','p5_closing','p5_thanks'];
+
+const WC_MAP={
+  'p1_intro':'wc1a','p1_id':'wc1b','p1_overview':'wc1c',
+  'p2_what':'wc2a','p2_why':'wc2b','p2_learned':'wc2c',
+  'p3_skill':'wc3a','p3_why':'wc3b','p3_learned':'wc3c',
+  'p4_area':'wc4a','p4_what':'wc4b','p4_sowhat':'wc4c','p4_nowwhat':'wc4d',
+  'p5_summary':'wc5a','p5_closing':'wc5b','p5_thanks':'wc5c'
+};
+
+function save(){
+  const data={};
+  FIELDS.forEach(id=>{const el=document.getElementById(id);if(el)data[id]=el.value;});
+  data.completed=completed;
+  try{localStorage.setItem('csp_notes',JSON.stringify(data));}catch(e){}
+}
+
+function load(){
+  try{
+    const raw=localStorage.getItem('csp_notes');
+    if(!raw)return;
+    const data=JSON.parse(raw);
+    FIELDS.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el&&data[id]!==undefined){
+        el.value=data[id];
+        if(WC_MAP[id]) wc(id,WC_MAP[id]);
+      }
+    });
+    if(data.completed&&Array.isArray(data.completed)){
+      data.completed.forEach((v,i)=>{if(v) markDone(i+1);});
+    }
+  }catch(e){}
+}
+
+load();
+</script>
+</body>
+</html>
